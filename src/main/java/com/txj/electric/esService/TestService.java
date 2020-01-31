@@ -32,5 +32,13 @@ public interface TestService {
 	List<TestBean> findByNameOrDesc(String text);
 
     List<TestBean> improveSearch(String text);
+
+    List<TestBean> searchPage();
+
+    List<TestBean> searchTerm(String text);
+
+    List<TestBean> searchMatch(String text);
+
+    List<TestBean> searchMultiMatch(String text);
 }
 

@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.IndicesClient;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -18,6 +19,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -148,6 +150,13 @@ public class TestServiceImpl implements TestService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        List<TestBean> testBeans = obtainTestBeans(searchResponse);
+
+
+        return testBeans;
+    }
+
+    private List<TestBean> obtainTestBeans(SearchResponse searchResponse) {
         // 搜索结果
         SearchHits hits = searchResponse.getHits();
         // 匹配到的总记录数
@@ -178,6 +187,115 @@ public class TestServiceImpl implements TestService {
 
             testBeans.add(testBean);
         }
+        return testBeans;
+    }
+
+    @Override
+    public List<TestBean> searchPage() {
+        // 搜索请求对象
+        SearchRequest searchRequest = new SearchRequest("testdoct");
+        // 指定类型
+        searchRequest.types("testbean");
+
+        // 搜索源构建对象
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        int page = 1; // 页码
+        int size = 2; // 每页显示的条数
+        int index = (page - 1) * size;
+        searchSourceBuilder.from(index);
+        searchSourceBuilder.size(size).sort("id", SortOrder.ASC);
+        // 搜索方式
+        // matchAllQuery搜索全部
+        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+        // 向搜索请求对象中设置搜索源
+        searchRequest.source(searchSourceBuilder);
+        // 执行搜索,向ES发起http请求
+        SearchResponse searchResponse = null;
+        try {
+            searchResponse = client.search(searchRequest,RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<TestBean> testBeans = obtainTestBeans(searchResponse);
+
+        return testBeans;
+    }
+
+    @Override
+    public List<TestBean> searchTerm(String text) {
+        // 搜索请求对象
+        SearchRequest searchRequest = new SearchRequest("testdoct");
+        // 指定类型
+        searchRequest.types("testbean");
+
+        // 搜索源构建对象
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        // 搜索方式
+        // termQuery 精确查询
+        searchSourceBuilder.query(QueryBuilders.termQuery("name", text));
+        // 向搜索请求对象中设置搜索源
+        searchRequest.source(searchSourceBuilder);
+        // 执行搜索,向ES发起http请求
+        SearchResponse searchResponse = null;
+        try {
+            searchResponse = client.search(searchRequest,RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<TestBean> testBeans = obtainTestBeans(searchResponse);
+
+        return testBeans;
+    }
+
+    @Override
+    public List<TestBean> searchMatch(String text) {
+        // 搜索请求对象
+        SearchRequest searchRequest = new SearchRequest("testdoct");
+        // 指定类型
+        searchRequest.types("testbean");
+
+        // 搜索源构建对象
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        // matchQuery全文检索
+        searchSourceBuilder.query(QueryBuilders
+                .matchQuery("desc", text).minimumShouldMatch("90%"));
+        // 向搜索请求对象中设置搜索源
+        searchRequest.source(searchSourceBuilder);
+        // 执行搜索,向ES发起http请求
+        SearchResponse searchResponse = null;
+        try {
+            searchResponse = client.search(searchRequest,RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<TestBean> testBeans = obtainTestBeans(searchResponse);
+
+        return testBeans;
+    }
+
+    @Override
+    public List<TestBean> searchMultiMatch(String text) {
+        // 搜索请求对象
+        SearchRequest searchRequest = new SearchRequest("testdoct");
+        // 指定类型
+        searchRequest.types("testbean");
+
+        // 搜索源构建对象
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        // matchQuery全文检索
+        searchSourceBuilder.query(QueryBuilders
+                .multiMatchQuery(text, "name", "desc")
+                .field("name", 10).minimumShouldMatch("70%")); // 设置 name 10倍权重
+        // 向搜索请求对象中设置搜索源
+        searchRequest.source(searchSourceBuilder);
+        // 执行搜索,向ES发起http请求
+        SearchResponse searchResponse = null;
+        try {
+            searchResponse = client.search(searchRequest,RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<TestBean> testBeans = obtainTestBeans(searchResponse);
 
         return testBeans;
     }

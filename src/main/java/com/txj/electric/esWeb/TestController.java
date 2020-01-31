@@ -57,9 +57,64 @@ public class TestController {
         return testService.findByNameOrDesc(text);
     }
 
+    /**
+     * @author: 官昌洪
+     * @Description: 高级查询，分词，高亮
+     * @Date: 2020/1/31 9:41
+     * @Param:
+     * @return:
+     */
     @RequestMapping("improveSearch")
     public List<TestBean> improveSearch(String text) {
         return testService.improveSearch(text);
+    }
+
+    /**
+     * @author: 官昌洪
+     * @Description: 普通分页
+     * @Date: 2020/1/31 9:41
+     * @Param:
+     * @return:
+     */
+    @RequestMapping("searchPage")
+    public List<TestBean> searchPage() {
+        return testService.searchPage();
+    }
+
+    /**
+     * @author: 官昌洪
+     * @Description: 精确匹配
+     * @Date: 2020/1/31 9:41
+     * @Param:
+     * @return:
+     */
+    @RequestMapping("searchTerm")
+    public List<TestBean> searchTerm(String text) {
+        return testService.searchTerm(text);
+    }
+
+    /**
+     * @author: 官昌洪
+     * @Description: 模糊匹配
+     * @Date: 2020/1/31 9:41
+     * @Param:
+     * @return:
+     */
+    @RequestMapping("searchMatch")
+    public List<TestBean> searchMatch(String text) {
+        return testService.searchMatch(text);
+    }
+
+    /**
+     * @author: 官昌洪
+     * @Description: 模糊匹配
+     * @Date: 2020/1/31 9:41
+     * @Param:
+     * @return:
+     */
+    @RequestMapping("searchMultiMatch")
+    public List<TestBean> searchMultiMatch(String text) {
+        return testService.searchMultiMatch(text);
     }
 
 }
